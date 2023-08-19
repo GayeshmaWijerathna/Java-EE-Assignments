@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--    http:://localhost:8080/pos_one/pages/customer.html-->
+    <!--    http:://localhost:8080/pos_one/pages/customer-->
+
+    <!--    http:://localhost:8080/pos_one/pages/customer-->
     <meta charset="UTF-8">
     <title>Customer Manage</title>
     <meta content="width=device-width initial-scale=1" name="viewport">
@@ -15,16 +19,15 @@
     </style>
 </head>
 <body>
-
 <!--header-->
 <header class="jumbotron bg-primary text-white p-3">
     <h1 class="position-absolute" id="nav"></h1>
     <ul class="list-group list-group-horizontal text-danger justify-content-end font-weight-bold">
-        <li class="list-group-item bg-white" id="lnkHome"><a href="../index.jsp">Home</a></li>
+        <li class="list-group-item bg-white" id="lnkHome"><a href="../index.html">Home</a></li>
         <li class="list-group-item bg-danger text-white" id="lnkCustomer"><a class="text-white" href="customer.html">Customer</a>
         </li>
-        <li class="list-group-item bg-white" id="lnkItem"><a href="item.jsp">Item</a></li>
-        <li class="list-group-item bg-white" id="lnkOrders"><a href="purchase-order.jsp">Orders</a></li>
+        <li class="list-group-item bg-white" id="lnkItem"><a href="item.html">Item</a></li>
+        <li class="list-group-item bg-white" id="lnkOrders"><a href="purchase-order.html">Orders</a></li>
     </ul>
 </header>
 
@@ -36,33 +39,26 @@
             <form id="customerForm">
                 <div class="form-group">
                     <label for="txtCustomerID">Customer ID</label>
-                    <input name="cusID" class="form-control" id="txtCustomerID" type="text">
-                    <span class="control-error" id="id"></span>
+                    <input name="cusID" class="form-control" id="txtCustomerID"  type="text">
+                    <span class="control-error" id="lblcusid"></span>
                 </div>
                 <div class="form-group">
                     <label for="txtCustomerName">Customer Name</label>
                     <input name="cusName" class="form-control" id="txtCustomerName" type="text">
-                    <span class="control-error" id="name"></span>
+                    <span class="control-error" id="lblcusname"></span>
                 </div>
                 <div class="form-group">
                     <label for="txtCustomerAddress">Customer Address</label>
                     <input name="cusAddress" class="form-control" id="txtCustomerAddress" type="text">
-                    <span class="control-error" id="address"></span>
+                    <span class="control-error" id="lblcusaddress"></span>
                 </div>
 
-
                 <div class="btn-group">
-                    <button  type="button"  class="btn btn-primary" id="btnCustomer">
-                        Save Customer
-                    </button>
-                    <button   formmethod="post" class="btn btn-danger"
-                            id="btnCusDelete">Remove
-                    </button>
-                    <button   formmethod="post" class="btn btn-warning"
-                            id="btnUpdate">Update
-                    </button>
-                    <button  type="button" class="btn btn-success" id="btnGetAll">Get All</button>
-                    <button formaction="/pos_one" class="btn btn-danger" id="btn-clear1">Clear All</button>
+                    <button type="button" class="btn btn-primary" id="btnCustomer" >Save Customer</button>
+                    <button  type="button" class="btn btn-danger" id="btnCusDelete" >Remove</button>
+                    <button  type="button" class="btn btn-warning" id="btnUpdate" >Update</button>
+                    <button type="button" class="btn btn-success" id="btnGetAll">Get All</button>
+                    <button type="button" class="btn btn-danger" id="btn-clear1">Clear All</button>
                 </div>
             </form>
         </div>
@@ -87,63 +83,141 @@
 <script src="../assets/js/jquery-3.6.1.min.js"></script>
 <script src="../assets/js/bootstrap.min.js"></script>
 
-
-<!--bind a event on btn GetAll btn-->
 <script>
 
-    $("#btnGetAll").click(function(){
+
+        getAll();
+
+     function bindRowClickOnAction() {
+        $("#tblCustomer>tr").click(function () {
+
+            let id = $(this).children(":eq(0)").text();
+            let name = $(this).children(":eq(1)").text();
+            let address = $(this).children(":eq(2)").text();
+
+            $("#txtCustomerID").val(id);
+            $("#txtCustomerName").val(name);
+            $("#txtCustomerAddress").val(address);
+
+        });
+
+    }
+
+
+    /*<!--    Clear Rows -->*/
+    function clearRow(id,name,address) {
+        $("#txtCustomerID").val(id);
+        $("#txtCustomerName").val(name);
+        $("#txtCustomerAddress").val(address);
+    }
+
+    <!--    Load All Customers  -->
+    function getAll() {
 
         $("#tblCustomer").empty();
-
-        <!--send ajax request to the customer servlet using jQuery-->
         $.ajax({
-            url:'customer',
-            success:function (resp) {
-                alert(resp.message);
-                console.log(resp);
-                    for (let i in resp) {
-                        let cus = resp[i];
+            url : "customer",
+            success : function (customer) {
+                for (let i in customer) {
+                    let cus=customer[i];
+                    let id=cus.id;
+                    let name=cus.name;
+                    let address = cus.address;
 
+                    console.log(id,name,address);
 
-                        // console.log(id, name, address);
+                    let row = `<tr><td>${id}</td><td>${name}</td><td>${address}</td></tr>`;
+                    $("#tblCustomer").append(row);
+                }
+                bindRowClickOnAction();
+                clearRow("","","");
 
-                        let row = `<tr><td>${cus.id}</td><td>${cus.name}</td><td>${cus.address}</td></tr>`;
-                        $("#tblCustomer").append(row);
-
-                    }
-                },
-            error:function (error){
-                console.log(error.responseJson);
-                alert(error.responseJson.message)
+            },
+            error: function(error){
+                console.log(error)
             }
         });
+
+    }
+
+    $("#btnGetAll").click(function () {
+
+        getAll();
     });
 
 
+    <!--    Save Customer  -->
 
-    $("#btnCustomer").click(function() {
+    $("#btnCustomer").click(function () {
+
         let formData = $("#customerForm").serialize();
-        console.log(formData);
-
         $.ajax({
-            url: "customer?option=add",
+            url:"customer",
             method:"post",
             data:formData,
-            success:function (res){
-                alert(res.message);
+            success:function (res) {
+                alert(
+                    res.message
+                );
+                getAll();
             }
-
-
         });
 
     });
+
+    <!--    Update Customer  -->
+    $("#btnUpdate").click(function () {
+
+        let cusId = $("#txtCustomerID").val();
+        let cusName = $("#txtCustomerName").val();
+        let cusAddress = $("#txtCustomerAddress").val();
+
+        var customerDB={
+            id:cusId,
+            name:cusName,
+            address:cusAddress
+        }
+        $.ajax({
+            url:"customer",
+            method:"put",
+            data:JSON.stringify(customerDB),
+            contentType:"application/json",
+            success:function (res) {
+
+                getAll();
+
+                alert(
+                    res.message
+                );
+            }
+        });
+
+    });
+
+    <!--    Delete Customer -->
+
+    $("#btnCusDelete").click(function () {
+        let id = $("#txtCustomerID").val();
+        $.ajax({
+            url: "customer?id=" + id,
+            method: 'delete',
+            success: function (res) {
+                getAll();
+                alert(
+                    res.message
+                );
+            },
+        });
+
+    });
+
+
+        $("#btn-clear1").click(function () {
+            clearRow("","","");
+        });
+
 
 
 </script>
-
-
-<!--when the response received catch it and set it to the table-->
-
-
 </body>
 </html>
